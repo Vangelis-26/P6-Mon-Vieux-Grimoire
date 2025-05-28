@@ -2,21 +2,24 @@ const Book = require("../models/book");
 
 //----- POST ----- //
 exports.createBook = (req, res, next) => {
-  delete req.body._id;
+  const bookObject = JSON.parse(req.body.book);
+  delete bookObject._id;
+  delete bookObject._userId;
   const book = new Book({
-    ...req.body,
+    ...bookObject,
+    userId: req.auth.userId,
+    imageUrl: `${req.protocol}://${req.get("host")}/images/${
+      req.file.filename
+    }`,
   });
   book
     .save()
-    .then((createdBook) => {
-      res.status(201).json({
-        message: "Livre ajouté avec succès",
-        bookId: createdBook._id,
-      });
+    .then(() => {
+      res.status(201).json({ message: "Livre créé avec succès" });
     })
     .catch((error) => {
       res.status(500).json({
-        message: "Erreur lors de l'ajout du livre",
+        message: "Erreur lors de la création du livre",
         error: error.message,
       });
     });
