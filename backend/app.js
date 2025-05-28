@@ -1,20 +1,17 @@
-require("dotenv").config();
-
 const express = require("express");
 const mongoose = require("mongoose");
-
 const bookRoutes = require("./routes/book");
 const userRoutes = require("./routes/user");
+require("dotenv").config();
+
+const app = express();
 
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connecté à MongoDB"))
   .catch((err) => console.error("Erreur de connexion à MongoDB", err));
 
-const app = express();
+app.use(express.json());
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -28,8 +25,6 @@ app.use((req, res, next) => {
   );
   next();
 });
-
-app.use(express.json());
 
 app.use("/api/book", bookRoutes);
 app.use("/api/auth", userRoutes);

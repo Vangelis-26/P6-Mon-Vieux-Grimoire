@@ -2,7 +2,6 @@ const Book = require("../models/book");
 
 //----- POST ----- //
 exports.createBook = (req, res, next) => {
-  console.log("Corps de la requête reçu :", req.body);
   delete req.body._id;
   const book = new Book({
     ...req.body,
