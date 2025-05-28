@@ -1,7 +1,10 @@
+require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
-const booksRoutes = require("./routes/books");
-require("dotenv").config();
+
+const bookRoutes = require("./routes/book");
+const userRoutes = require("./routes/user");
 
 mongoose
   .connect(process.env.MONGODB_URI, {
@@ -28,6 +31,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-app.use("/api/books", booksRoutes);
+app.use("/api/book", bookRoutes);
+app.use("/api/auth", userRoutes);
 
 module.exports = app;
