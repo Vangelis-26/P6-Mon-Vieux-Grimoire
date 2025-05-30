@@ -1,11 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const bookCtrl = require("../controllers/book");
 const auth = require("../middleware/auth");
-const multer = require("../middleware/multer");
-const sharp = require("../middleware/sharp");
-
+const multer = require("../middleware/multer-config");
 const bookCtrl = require("../controllers/book");
+const sharp = require("../middleware/sharp");
 
 router.post("/", auth, sharp, bookCtrl.createBook);
 router.get("/", auth, multer, bookCtrl.allBooks);

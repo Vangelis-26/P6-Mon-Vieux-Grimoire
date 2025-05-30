@@ -7,7 +7,7 @@ const optimizeImage = (req, res, next) => {
 
   const { buffer, originalname } = req.file;
   const timestamp = Date.now().toISOString();
-  const filename = `${timestamp}-${originalname}`;
+  const filename = `${originalname}-${timestamp}`;
 
   sharp(buffer)
     .resize({ height: 600, fit: sharp.fit.inside })
