@@ -1,28 +1,40 @@
 const Book = require("../models/book");
 
 //----- POST ----- //
-exports.createBook = (req, res, next) => {
-  const bookObject = JSON.parse(req.body.book);
-  delete bookObject._id;
-  delete bookObject._userId;
-  const book = new Book({
-    ...bookObject,
-    userId: req.auth.userId,
-    imageUrl: `${req.protocol}://${req.get("host")}/images/${
-      req.file.filename
-    }`,
-  });
-  book
-    .save()
-    .then(() => {
-      res.status(201).json({ message: "Livre créé avec succès" });
-    })
-    .catch((error) => {
-      res.status(500).json({
-        message: "Erreur lors de la création du livre",
-        error: error.message,
-      });
+exports.createBook = (req, res) => {
+  try {
+    const bookObject = JSON.parse(req.body.book);
+    delete bookObject._id;
+    delete bookObject._userId;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Image manquante" });
+    }
+
+    const book = new Book({
+      ...bookObject,
+      userId: req.auth.userId,
+      imageUrl: `${req.protocol}://${req.get("host")}/images/${
+        req.file.filename
+      }`,
     });
+    book
+      .save()
+      .then(() => {
+        res.status(201).json({ message: "Livre créé avec succès" });
+      })
+      .catch((error) => {
+        res.status(500).json({
+          message: "Erreur lors de la création du livre",
+          error: error.message,
+        });
+      });
+  } catch (error) {
+    res.status(400).json({
+      message: "Erreur lors de la création du livre",
+      error: error.message,
+    });
+  }
 };
 
 // ----- GET all books ----- //
@@ -51,7 +63,6 @@ exports.getOneBook = (req, res, next) => {
       }
     })
     .catch((error) => {
-      c;
       res.status(500).json({
         message: "Erreur lors de la récupération du livre",
         error: error.message,
