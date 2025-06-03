@@ -1,4 +1,5 @@
 const Book = require("../models/book");
+const fs = require("fs");
 
 //----- POST ----- //
 exports.createBook = (req, res) => {
@@ -85,14 +86,35 @@ exports.updateBook = (req, res, next) => {
 };
 
 // ----- DELETE ----- //
-exports.deleteBook = (req, res, next) => {
-  Book.deleteOne({ _id: req.params.id })
-    .then(() => {
-      res.status(200).json({ message: "Livre supprimé avec succès" });
+exports.deleteBook = (req, res) => {
+  Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      if (book.userId !== req.auth.userId) {
+        return res.status(401).json({ message: "Action interdite" });
+      }
+      const filename = book.imageUrl.split("/images/")[1];
+      fs.unlink(`images/${filename}`, (err) => {
+        if (err) {
+          return res.status(500).json({
+            message: "Erreur lors de la suppression de l'image",
+            error: err.message,
+          });
+        }
+        Book.deleteOne({ _id: req.params.id })
+          .then(() => {
+            res.status(200).json({ message: "Livre supprimé avec succès" });
+          })
+          .catch((error) => {
+            res.status(500).json({
+              message: "Erreur lors de la suppression du livre",
+              error: error.message,
+            });
+          });
+      });
     })
     .catch((error) => {
       res.status(500).json({
-        message: "Erreur lors de la suppression du livre",
+        message: "Erreur lors de la recherche du livre",
         error: error.message,
       });
     });
