@@ -200,28 +200,38 @@ exports.bestRating = (req, res, next) => {
 };
 
 // ----- Get Average Rating ----- //
-exports.getAverageRating = (req, res) => {
-  const bookId = req.params.id;
+exports.ratingBook = (req, res) => {
+	Book.findOne({ _id: req.params.id })
+		.then((book) => {
+			if (!book) {
+				return res.status(400).json({ error: 'requête invalide' });
+			}
+			const rating = { userId: req.body.userId, grade: req.body.rating };
+			const ratings = book.ratings;
+			if (ratings.find((rate) => rate.userId === req.body.userId)) {
+				return res.status(400).json({ error: 'requête invalide' });
+			}
+			ratings.push(rating);
+			const averageRating =
+				ratings.reduce((acc, current) => {
+					return acc + current.grade;
+				}, 0) / ratings.length;
 
-  Book.findOne({ _id: bookId })
-    .then((book) => {
-      if (!book) {
-        return res.status(404).json({ message: "Livre non trouvé" });
-      }
-
-      if (book.ratings.length === 0) {
-        return res.status(200).json({ averageRating: 0 });
-      }
-
-      const totalRating = book.ratings.reduce((acc, rating) => acc + rating.rating, 0);
-      const averageRating = totalRating / book.ratings.length;
-
-      res.status(200).json({ averageRating: averageRating.toFixed(2) });
-    })
-    .catch((error) => {
-      res.status(500).json({
-        message: "Erreur lors de la récupération de la note moyenne",
-        error: error.message,
-      });
-    });
+			Book.findOneAndUpdate(
+				{
+					_id: req.params.id,
+				},
+				{
+					ratings: ratings,
+					averageRating: averageRating,
+				},
+				{ new: true, runValidators: true },
+			)
+				.then((book) => {
+					res.status(200).json(book);
+					console.log(`${book.title}: ${book.averageRating}`);
+				})
+				.catch((error) => res.status(400).json({ error: 'requête invalide' }));
+		})
+		.catch((error) => res.status(500).json({ error: 'erreur serveur' }));
 };

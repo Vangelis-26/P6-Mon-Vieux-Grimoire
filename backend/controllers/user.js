@@ -9,7 +9,7 @@ exports.signup = (req, res) => {
   if (!emailRegex.test(req.body.email)) {
     return res.status(400).json({ error: "Email invalide !" });
   }
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/;
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
   if (!passwordRegex.test(req.body.password)) {
     return res.status(400).json({
       error:
