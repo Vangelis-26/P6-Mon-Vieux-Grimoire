@@ -1,7 +1,7 @@
 const Book = require("../models/book");
 const fs = require("fs");
 
-//----- POST ----- //
+//----- Add Book ----- //
 exports.createBook = (req, res) => {
   try {
     const bookObject = JSON.parse(req.body.book);
@@ -38,6 +38,28 @@ exports.createBook = (req, res) => {
   }
 };
 
+// ----- Update Book ----- //
+exports.updateBook = (req, res) => {
+  const bookObject = req.file
+    ? {
+        ...JSON.parse(req.body.book),
+        imageUrl: `${req.protocol}://${req.get("host")}/images/${
+          req.file.filename
+        }`,
+      }
+    : { ...req.body };
+
+  Book.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id })
+    .then(() => {
+      res.status(200).json({ message: "Livre mis à jour avec succès" });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Erreur lors de la mise à jour du livre",
+        error: error.message,
+      });
+    });
+}
 // ----- GET all books ----- //
 exports.allBooks = (req, res, next) => {
   Book.find()
@@ -71,19 +93,7 @@ exports.getOneBook = (req, res, next) => {
     });
 };
 
-// ----- PUT ----- //
-exports.updateBook = (req, res, next) => {
-  Book.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-    .then(() => {
-      res.status(200).json({ message: "Livre mis à jour avec succès" });
-    })
-    .catch((error) => {
-      res.status(500).json({
-        message: "Erreur lors de la mise à jour du livre",
-        error: error.message,
-      });
-    });
-};
+// (Removed duplicate and broken updateBook function)
 
 // ----- DELETE ----- //
 exports.deleteBook = (req, res) => {
@@ -120,6 +130,7 @@ exports.deleteBook = (req, res) => {
     });
 };
 
+// ----- Rating Books ----- //
 exports.ratingBook = (req, res) => {
   const { bookId, rating } = req.body;
 
