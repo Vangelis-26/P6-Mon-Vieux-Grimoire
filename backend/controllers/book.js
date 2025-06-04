@@ -157,7 +157,7 @@ exports.bestRating = (req, res, next) => {
     .sort({ averageRating: -1 })
     .limit(3)
     .then(books => res.status(200).json(books))
-    .catch(error => res.status(400).json({ error }));
+    .catch(error => res.status(400).json({ error : 'Erreur lors de la récupération des meilleurs livres'}));
 };
 
 // ----- Rating ----- //
@@ -165,12 +165,12 @@ exports.ratingBook = (req, res) => {
 	Book.findOne({ _id: req.params.id })
 		.then((book) => {
 			if (!book) {
-				return res.status(400).json({ error: 'requête invalide' });
+				return res.status(404).json({ error: 'Livre non trouvé' });
 			}
 			const rating = { userId: req.body.userId, grade: req.body.rating };
 			const ratings = book.ratings;
 			if (ratings.find((rate) => rate.userId === req.body.userId)) {
-				return res.status(400).json({ error: 'requête invalide' });
+				return res.status(400).json({ error: 'Vous avez déjà noté ce livre.' });
 			}
 			ratings.push(rating);
 			const averageRating =
@@ -190,9 +190,7 @@ exports.ratingBook = (req, res) => {
 			)
 				.then((book) => {
 					res.status(200).json(book);
-					console.log(`${book.title}: ${book.averageRating}`);
 				})
-				.catch((error) => res.status(400).json({ error: 'requête invalide' }));
 		})
-		.catch((error) => res.status(500).json({ error: 'erreur serveur' }));
+		.catch((error) => res.status(500).json({ error: 'Erreur lors de la notation du livre' }));
 };
