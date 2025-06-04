@@ -9,7 +9,7 @@ router.get("/", bookCtrl.allBooks);
 router.get("/:id", bookCtrl.getOneBook);
 
 router.post("/", auth, multer, sharp, bookCtrl.createBook);
-router.put("/:id", auth, bookCtrl.updateBook);
+router.put("/:id", auth, multer, sharp, bookCtrl.updateBook);
 router.delete("/:id", auth, bookCtrl.deleteBook);
 
 module.exports = router;

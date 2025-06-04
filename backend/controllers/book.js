@@ -1,7 +1,7 @@
 const Book = require("../models/book");
 const fs = require("fs");
 
-//----- Add Book ----- //
+//----- POST ----- //
 exports.createBook = (req, res) => {
   try {
     const bookObject = JSON.parse(req.body.book);
@@ -60,6 +60,7 @@ exports.updateBook = (req, res) => {
       });
     });
 }
+
 // ----- GET all books ----- //
 exports.allBooks = (req, res, next) => {
   Book.find()
@@ -93,7 +94,50 @@ exports.getOneBook = (req, res, next) => {
     });
 };
 
-// (Removed duplicate and broken updateBook function)
+// ----- PUT ----- //
+exports.updateBook = (req, res, next) => {
+  Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      if (book.userId !== req.auth.userId) {
+        return res.status(401).json({ message: "Action interdite" });
+      }
+      const bookObject = req.file
+        ? {
+            ...JSON.parse(req.body.book),
+            imageUrl: `${req.protocol}://${req.get("host")}/images/${
+              req.file.filename
+            }`,
+          }
+        : { ...req.body };
+        fs.unlink(`images/${book.imageUrl.split("/images/")[1]}`, (err) => {
+          if (err) {
+            return res.status(500).json({
+              message: "Erreur lors de la suppression de l'image",
+              error: err.message,
+            });
+          }
+        });
+        Book.updateOne(
+          { _id: req.params.id },
+          { ...bookObject, _id: req.params.id }
+        )
+        .then(() => {
+          res.status(200).json({ message: "Livre mis à jour avec succès" });
+        })
+        .catch((error) => {
+          res.status(500).json({
+            message: "Erreur lors de la mise à jour du livre",
+            error: error.message,
+          });
+        });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Erreur lors de la recherche du livre",
+        error: error.message,
+      });
+    });
+};
 
 // ----- DELETE ----- //
 exports.deleteBook = (req, res) => {
