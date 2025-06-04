@@ -190,6 +190,15 @@ exports.ratingBook = (req, res) => {
     });
 }
 
+// ----- Get Best Rating ----- //
+exports.bestRating = (req, res, next) => {
+    Book.find()
+    .sort({ averageRating: -1 })
+    .limit(3)
+    .then(books => res.status(200).json(books))
+    .catch(error => res.status(400).json({ error }));
+};
+
 // ----- Get Average Rating ----- //
 exports.getAverageRating = (req, res) => {
   const bookId = req.params.id;
