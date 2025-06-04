@@ -15,7 +15,7 @@ const optimizeImage = (req, res, next) => {
 
   sharp(buffer)
     .resize({ height: 260, fit: sharp.fit.inside })
-    .webp({ quality: 80 })
+    .toFormat("webp", { quality: 80 })
     .toFile(`./images/${filename}`, (err) => {
       if (err) {
         return res.status(500).json({
