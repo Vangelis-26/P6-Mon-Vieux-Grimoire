@@ -151,45 +151,6 @@ exports.deleteBook = (req, res) => {
     });
 };
 
-// ----- Rating Books ----- //
-exports.ratingBook = (req, res) => {
-  const { bookId, rating } = req.body;
-
-  if (!bookId || rating === undefined) {
-    return res.status(400).json({ message: "Livre ou note manquante" });
-  }
-
-  Book.findOne({ _id: bookId })
-    .then((book) => {
-      if (!book) {
-        return res.status(404).json({ message: "Livre non trouvé" });
-      }
-
-      book.ratings.push({
-        userId: req.auth.userId,
-        rating: rating,
-      });
-
-      book
-        .save()
-        .then(() => {
-          res.status(200).json({ message: "Note ajoutée avec succès" });
-        })
-        .catch((error) => {
-          res.status(500).json({
-            message: "Erreur lors de l'ajout de la note",
-            error: error.message,
-          });
-        });
-    })
-    .catch((error) => {
-      res.status(500).json({
-        message: "Erreur lors de la recherche du livre",
-        error: error.message,
-      });
-    });
-}
-
 // ----- Get Best Rating ----- //
 exports.bestRating = (req, res, next) => {
     Book.find()
@@ -199,7 +160,7 @@ exports.bestRating = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 };
 
-// ----- Get Average Rating ----- //
+// ----- Rating ----- //
 exports.ratingBook = (req, res) => {
 	Book.findOne({ _id: req.params.id })
 		.then((book) => {
@@ -215,7 +176,7 @@ exports.ratingBook = (req, res) => {
 			const averageRating =
 				ratings.reduce((acc, current) => {
 					return acc + current.grade;
-				}, 0) / ratings.length;
+				}, 0) / ratings.length.toFixed(1);
 
 			Book.findOneAndUpdate(
 				{
