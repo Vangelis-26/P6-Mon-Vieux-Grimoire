@@ -1,5 +1,6 @@
 const sharp = require("sharp");
 const crypto = require("crypto");
+const path = require("path")
 
 const optimizeImage = (req, res, next) => {
   if (!req.file) {
@@ -16,11 +17,11 @@ const optimizeImage = (req, res, next) => {
   sharp(buffer)
     .resize({ height: 260, fit: sharp.fit.inside })
     .toFormat("webp", { quality: 80 })
-    .toFile(`./images/${filename}`, (err) => {
+    .toFile(path.join(__dirname, '..', 'images', filename), (err) => {
       if (err) {
         return res.status(500).json({
           message: "Erreur lors de l'optimisation de l'image",
-          error: err.message,
+          error: "Une erreur interne est survenue. Veuillez réessayer.",
         });
       }
 

@@ -1,7 +1,7 @@
+require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-require("dotenv").config();
 
 // ----- User Signup ----- //
 exports.signup = (req, res) => {
@@ -13,7 +13,7 @@ exports.signup = (req, res) => {
   if (!passwordRegex.test(req.body.password)) {
     return res.status(400).json({
       error:
-        "Mot de passe invalide ! Il doit contenir au moins 6 caractères, une majuscule, une minuscule et un chiffre.",
+        "Mot de passe invalide ! Il doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.",
     });
   }
   bcrypt
