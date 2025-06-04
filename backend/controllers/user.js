@@ -5,6 +5,17 @@ require("dotenv").config();
 
 // ----- User Signup ----- //
 exports.signup = (req, res) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(req.body.email)) {
+    return res.status(400).json({ error: "Email invalide !" });
+  }
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/;
+  if (!passwordRegex.test(req.body.password)) {
+    return res.status(400).json({
+      error:
+        "Mot de passe invalide ! Il doit contenir au moins 6 caractères, une majuscule, une minuscule et un chiffre.",
+    });
+  }
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {

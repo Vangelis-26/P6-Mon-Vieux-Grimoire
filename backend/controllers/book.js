@@ -189,3 +189,30 @@ exports.ratingBook = (req, res) => {
       });
     });
 }
+
+// ----- Get Average Rating ----- //
+exports.getAverageRating = (req, res) => {
+  const bookId = req.params.id;
+
+  Book.findOne({ _id: bookId })
+    .then((book) => {
+      if (!book) {
+        return res.status(404).json({ message: "Livre non trouvé" });
+      }
+
+      if (book.ratings.length === 0) {
+        return res.status(200).json({ averageRating: 0 });
+      }
+
+      const totalRating = book.ratings.reduce((acc, rating) => acc + rating.rating, 0);
+      const averageRating = totalRating / book.ratings.length;
+
+      res.status(200).json({ averageRating: averageRating.toFixed(2) });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        message: "Erreur lors de la récupération de la note moyenne",
+        error: error.message,
+      });
+    });
+};
